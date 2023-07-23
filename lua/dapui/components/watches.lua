@@ -80,15 +80,15 @@ return function(client, send_ready)
         return
       end
       local frame_id = client.session
-        and client.session.current_frame
-        and client.session.current_frame.id
+          and client.session.current_frame
+          and client.session.current_frame.id
       local step = client.lib.step_number()
       for i, watch in pairs(watches) do
         local success, evaluated
         if running then
           success, evaluated = pcall(
             client.request.evaluate,
-            { context = "watch", expression = watch.expression, frameId = frame_id }
+            { context = "repl", expression = watch.expression, frameId = frame_id }
           )
         else
           success, evaluated = false, { message = "No active session" }
