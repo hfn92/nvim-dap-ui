@@ -16,6 +16,7 @@ local Variables = {}
 ---@param send_ready function
 return function(client, send_ready)
   local expanded_children = {}
+  local cnt = 0
 
   ---@type fun(value: string) | nil
   local prompt_func
@@ -50,20 +51,39 @@ return function(client, send_ready)
     if config.render.sort_variables then
       table.sort(variables, config.render.sort_variables)
     end
+
+    local pad_name = 0
+    local pad_type = 0
+    local max_name = 32
+    for _, variable in pairs(variables) do
+      pad_name = math.max(#variable.name, pad_name)
+      pad_type = math.max(#util.render_type(variable.type), pad_type)
+    end
+    pad_name = math.min(pad_name, 32)
+    pad_type = 8 -- math.min(pad_type, 32)
+
+    local cur_line = vim.api.nvim_win_get_cursor(0)[1]
+    -- vim.notify("" .. cnt)
+    cnt = cnt + 1
+    -- local width = vim.api.nvim_win_get_bu()
+
     for _, variable in pairs(variables) do
       local var_path = parent_path .. "." .. variable.name
 
+      local name = variable.name .. string.rep(" ", pad_name - #variable.name)
+      if #name > max_name then
+        -- if is_active_buf and cur_line == canvas:length() then
+        -- goto skp
+        -- end
+        name = name:sub(0, max_name - 3) .. "..."
+        -- ::skp::
+      end
       canvas:write({
         string.rep(" ", indent),
         { reference_prefix(var_path, variable), group = "DapUIDecoration" },
         " ",
-        { variable.name, group = "DapUIVariable" },
+        { name, group = "DapUIVariable" },
       })
-
-      local var_type = util.render_type(variable.type)
-      if #var_type > 0 then
-        canvas:write({ " ", { var_type, group = "DapUIType" } })
-      end
 
       local var_group
       if path_changed(var_path, variable.value) then
@@ -94,23 +114,30 @@ return function(client, send_ready)
           prompt_fill = variable.value
           send_ready()
         end)
-        canvas:write(line .. "\n", { group = var_group })
+        canvas:write(line, { group = var_group })
       end
 
       if #(variable.value or "") > 0 then
-        canvas:write(" = ")
+        canvas:write("  ")
         local value_start = #canvas.lines[canvas:length()]
         local value = variable.value
 
         for _, line in ipairs(util.format_value(value_start, value)) do
-          add_var_line(line)
+          add_var_line(line .. string.rep(" ", pad_type - #line))
         end
       else
         add_var_line(variable.value)
       end
 
+      local var_type = util.render_type(variable.type)
+      if #var_type > 0 then
+        canvas:write({ " ", { var_type, group = "DapUIType" } })
+      end
+
+      canvas:write("\n", { group = var_group })
+
       if expanded_children[var_path] and variable.variablesReference ~= 0 then
-        render(canvas, var_path, variable.variablesReference, indent + config.render.indent)
+        render(canvas, var_path, variable.variablesReference, indent + config.render.indent, bufnr)
       end
     end
   end
