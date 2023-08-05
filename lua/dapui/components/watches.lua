@@ -95,9 +95,13 @@ return function(client, send_ready)
         end
         local prefix = config.icons[watch.expanded and "expanded" or "collapsed"]
 
+        canvas:write({ { prefix, group = "DapUIDecoration" } })
+
         canvas:write({
-          { prefix, group = success and "DapUIWatchesValue" or "DapUIWatchesError" },
-          " " .. watch.expression,
+          {
+            " " .. watch.expression,
+            group = success and "DapUIWatchesValue" or "DapUIWatchesError",
+          },
         })
 
         local value = ""

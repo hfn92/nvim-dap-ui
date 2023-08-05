@@ -145,8 +145,9 @@ local default_config = {
     type_seperator = "   ",
     min_name_padding = 12,
     max_type_length = nil, -- Can be integer or nil.
-    max_name_length = 48, -- Can be integer or nil.
+    max_name_length = 32, -- Can be integer or nil.
     max_value_lines = 100, -- Can be integer or nil.
+    max_value_padding = 16, -- Can be integer or nil.
     indent = 1,
   },
 }

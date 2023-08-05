@@ -62,7 +62,7 @@ return function(client, send_ready)
     end
     pad_name = math.min(pad_name, config.render.max_name_length or 0)
     pad_name = math.max(pad_name, config.render.min_name_padding)
-    pad_value = math.min(pad_value, 32)
+    pad_value = math.min(pad_value, config.render.max_value_padding)
 
     for _, variable in pairs(variables) do
       local var_path = parent_path .. "." .. variable.name
