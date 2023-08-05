@@ -80,8 +80,8 @@ return function(client, send_ready)
         return
       end
       local frame_id = client.session
-          and client.session.current_frame
-          and client.session.current_frame.id
+        and client.session.current_frame
+        and client.session.current_frame.id
       local step = client.lib.step_number()
       for i, watch in pairs(watches) do
         local success, evaluated
@@ -106,12 +106,8 @@ return function(client, send_ready)
           canvas:write(": ")
           value = util.format_error(evaluated)
         else
-          local eval_type = util.render_type(evaluated.type)
-          if #eval_type > 0 then
-            canvas:write({ " ", { eval_type, group = "DapUIType" } })
-          end
-          canvas:write(" = ")
           value = evaluated.result
+          canvas:write(config.render.value_seperator)
         end
         local val_start = canvas:line_width()
         local var_group
@@ -133,8 +129,16 @@ return function(client, send_ready)
             canvas:add_mapping("expand", partial(toggle_expression, i))
             canvas:add_mapping("repl", partial(util.send_to_repl, watch.expression))
           end
-          canvas:write("\n")
         end
+
+        if success then
+          local eval_type = util.render_type(evaluated.type)
+          if #eval_type > 0 then
+            canvas:write({ " ", { eval_type, group = "DapUIType" } })
+          end
+        end
+
+        canvas:write("\n")
 
         local var_ref = success and evaluated.variablesReference or 0
         if watch.expanded and var_ref > 0 then

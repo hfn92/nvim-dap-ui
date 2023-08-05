@@ -65,6 +65,8 @@ local dapui = {}
 ---@field indent integer Default indentation size
 ---@field max_type_length? integer Maximum number of characters to allow a type
 --- name to fill before trimming
+---@field max_name_length? integer Maximum number of characters to allow a value
+--- name to fill before trimming
 ---@field max_value_lines? integer Maximum number of lines to allow a value to
 --- fill before trimming
 ---@field sort_variables? fun(a: dapui.types.Variable, b: dapui.types.Variable):boolean Sorting function to determine
@@ -139,7 +141,11 @@ local default_config = {
     },
   },
   render = {
+    value_seperator = "   ",
+    type_seperator = "   ",
+    min_name_padding = 12,
     max_type_length = nil, -- Can be integer or nil.
+    max_name_length = 48, -- Can be integer or nil.
     max_value_lines = 100, -- Can be integer or nil.
     indent = 1,
   },
